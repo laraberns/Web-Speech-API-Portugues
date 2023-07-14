@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web Speech API Teste</title>
+  <link rel="icon" type="image/x-icon" href="/img/microfone-simbolo-interface-de-voz_318-53806.avif">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css"
+    integrity="sha512-NmLkDIU1C/C88wi324HBc+S2kLhi08PN5GDeUVVVC/BVt/9Izdsc9SVeVfA1UZbY3sHUlDSyRXhCzHfr6hmPPw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div>
+    <h1 class="webSpeech">Web Speech API - Português <i class="fa-solid fa-headset fa-bounce" ></i></h1>
+  </div>
+
+  <div class="bloco">
+    <h2 class="titulo">Transcrição</h2>
+   <div><textarea id="transcription" readonly="readonly"></textarea> </div> 
+  </div>
+
+  <div class="bloco" id="status">
+    <h3 class="titulo">Status</h3>
+    <div id="log"></div>
+  </div>
+
+  <div>
+    <div class="buttons-wrapper">
+      <button id="button-play-ws" class="button-demo">Gravar</button>
+      <button id="button-stop-ws" class="button-demo">Parar</button>
+      <button id="clear-all" class="button-demo">Limpar</button>
+    </div>
+
+  </div>
+
+  <script>
+    // Test browser support
+    window.SpeechRecognition = window.SpeechRecognition ||
+      window.webkitSpeechRecognition
+
+    if (window.SpeechRecognition === null) {
+      document.getElementById('button-play-ws').setAttribute('disabled', 'disabled');
+      document.getElementById('button-stop-ws').setAttribute('disabled', 'disabled');
+    } else {
+      var recognizer = new SpeechRecognition();
+      recognizer.lang = "pt-Br"
+      var transcription = document.getElementById('transcription');
+      var log = document.getElementById('log');
+
+      // Recogniser doesn't stop listening even if the user pauses
+      recognizer.continuous = true;
+
+      // Start recognising
+      recognizer.onresult = function (event) {
+        transcription.textContent = '';
+
+        for (var i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            transcription.textContent = event.results[i][0].transcript;
+          }
+        }
+      };
+
+      // Listen for errors
+      recognizer.onerror = function (event) {
+        log.innerHTML = 'Erro de reconhecimento: ' + event.message + '<br />' + log.innerHTML;
+      };
+
+      document.getElementById('button-play-ws').addEventListener('click', function () {
+
+        try {
+          recognizer.start();
+          log.innerHTML = 'Reconhecimento começou' + '<br />' + log.innerHTML;
+        } catch (ex) {
+          log.innerHTML = 'Erro de reconhecimento: ' + ex.message + '<br />' + log.innerHTML;
+        }
+      });
+
+      document.getElementById('button-stop-ws').addEventListener('click', function () {
+        recognizer.stop();
+        log.innerHTML = 'Reconhecimento parou' + '<br />' + log.innerHTML;
+      });
+
+      document.getElementById('clear-all').addEventListener('click', function () {
+        transcription.textContent = '';
+        log.textContent = '';
+      });
+    }
+  </script>
+</body>
+
+</html>
